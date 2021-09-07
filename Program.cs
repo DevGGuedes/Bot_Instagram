@@ -11,8 +11,17 @@ namespace Bot_Insta
 {
     class Program
     {
+        public static IWebDriver driver;
+
         static void Main(string[] args)
         {
+
+            /*foreach (var number in arrNumber)
+            {
+                Console.WriteLine($"Numero digitado: {number}");
+                var delay = Task.Run(async delegate { await Task.Delay(10000); });
+                delay.Wait();
+            }*/
 
             try
             {
@@ -24,7 +33,7 @@ namespace Bot_Insta
                 chromeOptions.AddArgument("--log-level=3");
                 //chromeOptions.AddArgument("headless");
 
-                IWebDriver driver = new ChromeDriver(@"C:\Users\gabri\Desktop\Documentos\IBM\Estudos\Bot_Discord", chromeOptions);
+                driver = new ChromeDriver(@"C:\Users\gabri\Desktop\Documentos\IBM\Estudos\Bot_Discord", chromeOptions);
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
                 IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
 
@@ -45,7 +54,6 @@ namespace Bot_Insta
                 //click Entrar
                 SendClick(driver, By.Id("loginbutton"));
 
-                
                 wait.Until(ExpectedConditions.PresenceOfAllElementsLocatedBy(By.XPath("html/body/div[1]/section/main/section/div[3]/div[1]/div/div/div[2]/div[2]/div/div/div")));
                 string textLogin = (string)js.ExecuteScript("return document.getElementsByClassName('_7UhW9   xLCgt      MMzan   _0PwGv             fDxYl     ')[1].innerText");
                 Console.WriteLine($"Texto capturado {textLogin}");
@@ -54,13 +62,30 @@ namespace Bot_Insta
 
                 while (true)
                 {
-                    Random r = new Random();
-                    int rInt = r.Next(0, 9999);
+                    Random random = new Random();
+                    int NumberRandom = random.Next(0, 9999);
+
+                    var arrNumber = NumberRandom.ToString().ToCharArray();
+
+                    for (var i = 0; i < arrNumber.Length; i++)
+                    {
+                        int DelayRandom = random.Next(0, 20);
+
+                        // insere valor input comentario
+                        SendKeys(driver, By.XPath("/html/body/div[1]/section/main/div/div[1]/article/div[3]/section[3]/div/form/textarea"), Convert.ToString(arrNumber[i]));
+
+                        var delay = Task.Run(async delegate { await Task.Delay(TimeSpan.FromSeconds(DelayRandom)); });
+                        delay.Wait();
+                    }
+
+                    //Clica em publicar
+                    SendClick(driver, By.XPath("/html/body/div[1]/section/main/div/div[1]/article/div[3]/section[3]/div/form/button[2]"));
                 }
 
             }
             catch (Exception e)
             {
+                driver.Close();
                 Console.WriteLine($"Erro na execução do robo: {e}");
             }
 
@@ -98,7 +123,7 @@ namespace Bot_Insta
                 var delay = Task.Run(async delegate { await Task.Delay(3000); });
                 delay.Wait();
             }
-            input.Clear();
+            //input.Clear();
             input.SendKeys(valor);
             Console.WriteLine($"Inseriu dados: {valor}");
         }
